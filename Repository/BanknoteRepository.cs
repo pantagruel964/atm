@@ -10,7 +10,6 @@ public class BanknoteRepository : IBanknoteRepository
     public List<Banknote>? GetBanknotes()
     {
         string data;
-        Console.WriteLine(Directory.GetCurrentDirectory());
         string path = Path.Combine(Directory.GetCurrentDirectory(), BanknotesResource);
 
         try
