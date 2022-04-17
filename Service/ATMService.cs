@@ -52,7 +52,10 @@ public class AtmService
 
         foreach (var banknote in banknotes)
         {
-            Console.WriteLine($"Nominal: {banknote.NominalValue} Quantity: {banknote.Quantity}");
+            if (banknote.Quantity > 0)
+            {
+                Console.WriteLine($"Nominal: {banknote.NominalValue} Quantity: {banknote.Quantity}");
+            }
         }
 
         Environment.Exit((int) ExitCode.Successful);
@@ -62,11 +65,6 @@ public class AtmService
     {
         foreach (Banknote banknote in banknotes)
         {
-            if (requiredSum == 0)
-            {
-                ShowResult(collected);
-            }
-
             if (banknote.NominalValue <= requiredSum)
             {
                 if (_canFillWholeAmount(requiredSum, banknote)) {
@@ -91,11 +89,15 @@ public class AtmService
 
                 requiredSum -= b.NominalValue * b.Quantity;
             }
-            else
-            {
-                banknotes.RemoveAt(0);
-            }
         }
+        
+        if (requiredSum != 0)
+        {
+            Console.WriteLine("There are no required banknotes.");
+            Environment.Exit((int)ExitCode.HasNotNecessaryBanknotes);
+        }
+
+        ShowResult(collected);
     }
     
     private bool _canFillWholeAmount(int requiredSum, Banknote banknote)
@@ -116,10 +118,16 @@ public class AtmService
         return false;
     }
     
-    private int _calculateQuantity(int requiredSum, List<Banknote> banknotes, Banknote banknote, int decrement = 0)
+    private int _calculateQuantity(int requiredSum, List<Banknote> banknotes, Banknote banknote, int decrement = 0, int decrementCount = 1)
     {
-        var qty = (int)((requiredSum - decrement) / banknote.NominalValue);
+        var qty = (int)((requiredSum - decrement * decrementCount) / banknote.NominalValue);
 
+        if(requiredSum < 0 || qty < 0)
+        {
+            Console.WriteLine("There are no required banknotes.");
+            Environment.Exit((int)ExitCode.HasNotNecessaryBanknotes);
+        }
+        
         if (qty > banknote.Quantity) {
             qty = _calculateQuantity(requiredSum - (requiredSum - banknote.Quantity * banknote.NominalValue), banknotes, banknote);
         }
@@ -135,7 +143,9 @@ public class AtmService
             return qty;
         }
 
-        return _calculateQuantity(requiredSum, banknotes, banknote, banknote.NominalValue);
+        ++decrementCount;
+
+        return _calculateQuantity(requiredSum, banknotes, banknote, banknote.NominalValue, decrementCount);
     }
 
     private bool HasBanknotes(List<Banknote>? banknotes)

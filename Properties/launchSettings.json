@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ATM": {
+      "commandName": "Project",
+      "workingDirectory": "C:\\Users\\pg\\sharp\\repos\\atm"
+    }
+  }
+}

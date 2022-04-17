@@ -1,7 +1,7 @@
 [
   {
     "NominalValue": 500,
-    "Quantity": 5
+    "Quantity": 3
   },
   {
     "NominalValue": 50,
@@ -9,6 +9,6 @@
   },
   {
     "NominalValue": 20,
-    "Quantity": 30
+    "Quantity": 10
   }
 ]
