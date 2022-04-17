@@ -25,10 +25,10 @@ public class AtmService
             Environment.Exit((int) ExitCode.FailedToResolveBanknotesData);
         }
 
-        return Convert.ToBoolean(sum <= GetTotal(banknotes));
+        return Convert.ToBoolean(sum <= GetTotalMoneyInAtm(banknotes));
     }
 
-    public List<Banknote> Trrrrrrrrr(int sum)
+    public void Trrrrrrrrr(int sum)
     {
         var banknotes = _banknoteRepository.GetBanknotes();
 
@@ -38,56 +38,113 @@ public class AtmService
             Environment.Exit((int) ExitCode.FailedToResolveBanknotesData);
         }
 
-        var sortedBanknotes = _banknoteService.GetSortedByDescBanknotes(banknotes);
+        var sortedBanknotes = _banknoteService.GetSortedDescByNominal(banknotes);
 
         List<Banknote> collected = new List<Banknote>();
-        int requiredSum = sum;
-        int collectedSum = 0;
 
-        foreach (var banknote in sortedBanknotes)
+        GetMoney(sum, sortedBanknotes, collected);
+    }
+
+    void ShowResult(List<Banknote> banknotes)
+    {
+
+        Console.WriteLine("Operation successful.");
+
+        foreach (var banknote in banknotes)
         {
-            if (banknote.Quantity < 1)
-            {
-                continue;
-            }
-
-            var requiredQuantity = requiredSum / banknote.NominalValue;
-            var cb = new Banknote();
-            cb.NominalValue = banknote.NominalValue;
-            cb.Quantity = requiredQuantity <= banknote.Quantity ? requiredQuantity : banknote.Quantity;
-
-            collected.Add(cb);
-            collectedSum = collected.Sum(banknote1 => banknote1.NominalValue * banknote1.Quantity);
-
-            if (IsCollectRequiredAmount(sum, collectedSum))
-            {
-                break;
-            }
-
-            requiredSum = sum - collectedSum;
+            Console.WriteLine($"Nominal: {banknote.NominalValue} Quantity: {banknote.Quantity}");
         }
 
-        if (!IsCollectRequiredAmount(sum, collectedSum))
+        Environment.Exit((int) ExitCode.Successful);
+    }
+
+    void GetMoney(int requiredSum, List<Banknote> banknotes, List<Banknote> collected)
+    {
+        foreach (Banknote banknote in banknotes)
         {
-            Console.WriteLine("ATM has not necessary banknotes.");
+            if (requiredSum == 0)
+            {
+                ShowResult(collected);
+            }
+
+            if (banknote.NominalValue <= requiredSum)
+            {
+                if (_canFillWholeAmount(requiredSum, banknote)) {
+                    var a = new Banknote();
+                    a.NominalValue = banknote.NominalValue;
+                    a.Quantity = requiredSum / banknote.NominalValue;
+                    collected.Add(a);
+
+                    requiredSum -= a.NominalValue * a.Quantity;
+
+                    continue;
+                }
+
+                List<Banknote> copyBanknotes = new List<Banknote>(banknotes);
+
+                var quantity = _calculateQuantity(requiredSum, copyBanknotes, banknote);
+
+                var b = new Banknote();
+                b.NominalValue = banknote.NominalValue;
+                b.Quantity = quantity;
+                collected.Add(b);
+
+                requiredSum -= b.NominalValue * b.Quantity;
+            }
+            else
+            {
+                banknotes.RemoveAt(0);
+            }
+        }
+    }
+    
+    private bool _canFillWholeAmount(int requiredSum, Banknote banknote)
+    {
+        var totalByNominal = _banknoteService.GetTotalByNominal(banknote);
+
+        return totalByNominal >= requiredSum && requiredSum % banknote.NominalValue == 0;
+    }
+    
+    private bool _canDispenseByAnother(int amount, List<Banknote> banknotes)
+    {
+        foreach (var banknote in banknotes) {
+            if (amount % banknote.NominalValue == 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    
+    private int _calculateQuantity(int requiredSum, List<Banknote> banknotes, Banknote banknote, int decrement = 0)
+    {
+        var qty = (int)((requiredSum - decrement) / banknote.NominalValue);
+
+        if (qty > banknote.Quantity) {
+            qty = _calculateQuantity(requiredSum - (requiredSum - banknote.Quantity * banknote.NominalValue), banknotes, banknote);
+        }
+
+        if (banknotes.Count == 0) {
+            Console.WriteLine("There are no required banknotes.");
             Environment.Exit((int) ExitCode.HasNotNecessaryBanknotes);
         }
 
-        return collected;
-    }
+        banknotes = banknotes.Where(b => b.NominalValue < banknote.NominalValue).ToList();
 
-    private int GetTotal(List<Banknote> banknotes)
-    {
-        return banknotes.Sum(banknote => banknote.NominalValue * banknote.Quantity);
+        if (_canDispenseByAnother(requiredSum - qty * banknote.NominalValue, banknotes)) {
+            return qty;
+        }
+
+        return _calculateQuantity(requiredSum, banknotes, banknote, banknote.NominalValue);
     }
 
     private bool HasBanknotes(List<Banknote>? banknotes)
     {
-        return null != banknotes && GetTotal(banknotes) > 0;
+        return null != banknotes && GetTotalMoneyInAtm(banknotes) > 0;
     }
-
-    private bool IsCollectRequiredAmount(int required, int collected)
+    
+    private int GetTotalMoneyInAtm(List<Banknote> banknotes)
     {
-        return required == collected;
+        return banknotes.Sum(banknote => banknote.NominalValue * banknote.Quantity);
     }
 }

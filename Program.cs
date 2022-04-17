@@ -19,22 +19,17 @@ namespace ATM
 
             var atmService = new AtmService();
 
-            if (!atmService.HasEnoughMoney(sum))
-            {
-                Console.WriteLine("ATM has not enough money.");
-                Environment.Exit((int) ExitCode.NotEnoughMoney);
-            }
+            // if (!atmService.HasEnoughMoney(sum))
+            // {
+            //     Console.WriteLine("ATM has not enough money.");
+            //     Environment.Exit((int) ExitCode.NotEnoughMoney);
+            // }
 
-            var banknotes = atmService.Trrrrrrrrr(sum);
+            atmService.Trrrrrrrrr(sum);
+            // atmService.GetChange([5, 10, 50], 80);
 
-            Console.WriteLine("Operation successful.");
-            
-            foreach (var banknote in banknotes)
-            {
-                Console.WriteLine($"Nominal: {banknote.NominalValue} Quantity: {banknote.Quantity}");
-            }
-
-            Environment.Exit((int) ExitCode.Successful);
+            // var atm2 = new AtmService2();
+            // atm2.Run();
         }
     }
 }

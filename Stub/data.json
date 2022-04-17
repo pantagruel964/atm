@@ -1,22 +1,14 @@
 [
   {
-    "NominalValue": 5000,
-    "Quantity": 10
-  },
-  {
-    "NominalValue": 1000,
-    "Quantity": 10
-  },
-  {
     "NominalValue": 500,
-    "Quantity": 10
-  },
-  {
-    "NominalValue": 100,
-    "Quantity": 10
+    "Quantity": 5
   },
   {
     "NominalValue": 50,
-    "Quantity": 10
+    "Quantity": 5
+  },
+  {
+    "NominalValue": 20,
+    "Quantity": 30
   }
 ]
