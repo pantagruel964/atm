@@ -19,17 +19,13 @@ namespace ATM
 
             var atmService = new AtmService();
 
-            // if (!atmService.HasEnoughMoney(sum))
-            // {
-            //     Console.WriteLine("ATM has not enough money.");
-            //     Environment.Exit((int) ExitCode.NotEnoughMoney);
-            // }
+            if (!atmService.HasEnoughMoney(sum))
+            {
+                Console.WriteLine("ATM has not enough money.");
+                Environment.Exit((int) ExitCode.NotEnoughMoney);
+            }
 
             atmService.Trrrrrrrrr(sum);
-            // atmService.GetChange([5, 10, 50], 80);
-
-            // var atm2 = new AtmService2();
-            // atm2.Run();
         }
     }
 }
